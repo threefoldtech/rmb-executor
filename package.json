@@ -15,7 +15,7 @@
     "@threefold/rmb_direct_client": "^2.6.3",
     "material-design-icons-iconfont": "^6.7.0",
     "pinia": "^2.3.0",
-    "vite-plugin-node-polyfills": "^0.22.0",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5",
