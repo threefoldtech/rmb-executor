@@ -924,15 +924,15 @@
   resolved "https://registry.yarnpkg.com/@substrate/ss58-registry/-/ss58-registry-1.51.0.tgz#39e0341eb4069c2d3e684b93f0d8cb0bec572383"
   integrity sha512-TWDurLiPxndFgKjVavCniytBIw+t4ViOi7TYp9h/D0NMmkEc9klFTo+827eyEJ0lELpqO207Ey7uGxUa+BS1jQ==
 
-"@threefold/rmb_direct_client@^2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@threefold/rmb_direct_client/-/rmb_direct_client-2.6.3.tgz#d5cc680ea82f602696db45795683aac3f2bc7768"
-  integrity sha512-WSYPDjHUOXmIJBZX+yL5f/B4ayGQjWLyP+5BTj4IkDnCvDHQXRLZgSxtnxNIzWiuzZ+e1gzQZ99CeksqPfIvzg==
+"@threefold/rmb_direct_client@^2.6.4":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@threefold/rmb_direct_client/-/rmb_direct_client-2.7.1.tgz#6c8b73271e3cba24a25df1579de8eb07c56f9817"
+  integrity sha512-7fOybJU8pNinNj/SGheaGp4+PpVOBDTj/z6BHFZiRlXFzXmfaA/XWMQocZbgn7g2NV2MAdvyK5qI/DG8Lan5BA==
   dependencies:
     "@noble/secp256k1" "^1.7.1"
     "@polkadot/api" "^8.9.1"
-    "@threefold/tfchain_client" "2.6.3"
-    "@threefold/types" "2.6.3"
+    "@threefold/tfchain_client" "^2.7.1"
+    "@threefold/types" "^2.7.1"
     base64url "^3.0.1"
     bip39 "^3.1.0"
     buffer "^6.0.3"
@@ -942,21 +942,21 @@
     uuid "^8.3.2"
     ws "^8.12.0"
 
-"@threefold/tfchain_client@2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@threefold/tfchain_client/-/tfchain_client-2.6.3.tgz#792e8b465f1c29c889e6056e7a25fce061247699"
-  integrity sha512-Uozja0WbCzYEQFLWXmHt5Vc352rUamm9lsSzOAyQi0nPEkrwxPGSD9ljPWEy7LS0CSMCbYacc8xeXrJbVvvlJQ==
+"@threefold/tfchain_client@^2.7.1":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@threefold/tfchain_client/-/tfchain_client-2.7.1.tgz#4f24c9baf742b01602a037f540c76dfd963a172d"
+  integrity sha512-aIYaQy+kUqyXDkHNakyWda9eLZKoBZWMKemPQNRzY40FXEKDkcoVAVFB4s2NumDiyxau1Sp6gbjXxYN9dYFXfw==
   dependencies:
     "@polkadot/api" "^8.9.1"
-    "@threefold/types" "2.6.3"
+    "@threefold/types" "^2.7.1"
     await-lock "^2.2.2"
     bip39 "^3.1.0"
     moment "^2.30.1"
 
-"@threefold/types@2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@threefold/types/-/types-2.6.3.tgz#591bcc83c59d47b6cee6abf316af21439cfd5557"
-  integrity sha512-AJkNP+G6MXXa6Dux9GeirUTIU+YHr/Pq4piuf3NvtvAS1bnC7+jFYsWhFE1cKCzlzho7zkUoJyO11iYUcNLDig==
+"@threefold/types@^2.7.1":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@threefold/types/-/types-2.7.1.tgz#b0cba80204c194732ae73363cee48005e2ba52dc"
+  integrity sha512-NBGRs86+7TqmaC9WQcnHF6F9L6c10Sbp2ZIsc9eIa7RwDW0L+46kcskJdHGtaW6i4C8DHs/XB95M1gx028XnQA==
 
 "@tsconfig/node22@^22.0.0":
   version "22.0.0"
