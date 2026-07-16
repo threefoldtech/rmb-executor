@@ -7,7 +7,10 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vuetify from "vite-plugin-vuetify";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // Served from a GitHub Pages project subpath in production
+  // (https://threefoldtech.github.io/rmb-executor/); root during dev.
+  base: command === "build" ? "/rmb-executor/" : "/",
   plugins: [
     vue(),
     nodePolyfills(),
@@ -19,4 +22,4 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-});
+}));
