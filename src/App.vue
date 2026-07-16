@@ -20,7 +20,7 @@ const status = computed(() => {
 });
 
 const reconnect = () => {
-  if (rmbStore.status !== "connecting") rmbStore.set();
+  if (rmbStore.status !== "connecting") rmbStore.connect();
 };
 </script>
 

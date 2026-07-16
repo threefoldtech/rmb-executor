@@ -16,16 +16,17 @@
       <div class="card glass-card">
         <h2>1 · Connect</h2>
         <p>
-          The client signs in with the mnemonic from <code>VITE_MNEMONIC</code> and opens
-          a WebSocket to the relay. The chip in the top bar shows the live connection
-          state — click it to reconnect.
+          Set your mnemonic and pick a network (dev, QA, test, main, or custom
+          endpoints) right in the Connection panel. Switching networks reconnects in
+          place — no page reload.
         </p>
       </div>
       <div class="card glass-card">
         <h2>2 · Compose</h2>
         <p>
-          Pick a destination twin ID, type the command, and optionally attach a payload.
-          JSON payloads can be auto-formatted before sending.
+          Start from an example like <code>zos.system.version</code>, or type your own
+          command, twin ID, payload, and expiration. JSON payloads can be auto-formatted
+          before sending.
         </p>
       </div>
       <div class="card glass-card">
