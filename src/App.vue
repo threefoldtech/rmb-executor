@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import ConnectionSettings from "./components/ConnectionSettings.vue";
+import threefoldMark from "./assets/threefold-mark.png";
 import { useRmb } from "./stores/client";
 
 const rmbStore = useRmb();
@@ -41,20 +42,7 @@ onMounted(() => {
     <header class="topbar">
       <RouterLink to="/" class="brand">
         <span class="brand-mark">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-            <path
-              d="M12 2 20.5 7v10L12 22 3.5 17V7L12 2Z"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M12 22V12m0 0L3.5 7M12 12l8.5-5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <img :src="threefoldMark" alt="ThreeFold" width="18" height="19" />
         </span>
         <span class="brand-name">RMB <em>Executor</em></span>
       </RouterLink>

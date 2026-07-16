@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { requestRmb } from "../client/client";
 import { COMMAND_EXAMPLES, type CommandExample } from "../client/networks";
 import { useRmb } from "../stores/client";
+import JsonBlock from "./JsonBlock.vue";
 
 interface HistoryEntry {
   command: string;
@@ -28,8 +29,22 @@ const elapsedMs = ref(0);
 const copied = ref(false);
 const history = ref<HistoryEntry[]>([]);
 
+const payloadError = computed(() => {
+  const p = formData.value.payload.trim();
+  if (!p) return "";
+  try {
+    JSON.parse(p);
+    return "";
+  } catch {
+    return "Payload is not valid JSON";
+  }
+});
+
 const canSubmit = computed(
-  () => formData.value.command.trim().length > 0 && !loading.value
+  () =>
+    formData.value.command.trim().length > 0 &&
+    !payloadError.value &&
+    !loading.value
 );
 
 const activeExample = computed(() => formData.value.command.trim());
@@ -182,6 +197,8 @@ const applyHistory = (entry: HistoryEntry) => {
           auto-grow
           hide-details="auto"
           class="mono-field"
+          :error="!!payloadError"
+          :error-messages="payloadError"
         />
         <v-btn
           class="format-btn"
@@ -263,7 +280,7 @@ const applyHistory = (entry: HistoryEntry) => {
           {{ copied ? "Copied" : "Copy" }}
         </v-btn>
       </div>
-      <pre class="response-body">{{ response }}</pre>
+      <JsonBlock :content="response" class="response-body" />
     </v-card>
   </v-expand-transition>
 </template>

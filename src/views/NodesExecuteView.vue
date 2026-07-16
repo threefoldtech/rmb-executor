@@ -4,6 +4,7 @@ import { requestRmb } from "../client/client";
 import { COMMAND_EXAMPLES, type CommandExample } from "../client/networks";
 import { resolveScope, runPool, type Scope } from "../client/scan";
 import { useRmb } from "../stores/client";
+import JsonBlock from "../components/JsonBlock.vue";
 
 type NoticeType = "error" | "warning" | "info" | "success";
 
@@ -31,6 +32,17 @@ const noticeType = ref<NoticeType>("error");
 
 const connected = computed(() => !!rmbStore.rmbClient);
 const activeExample = computed(() => command.value.trim());
+
+const payloadError = computed(() => {
+  const p = payload.value.trim();
+  if (!p) return "";
+  try {
+    JSON.parse(p);
+    return "";
+  } catch {
+    return "Payload is not valid JSON";
+  }
+});
 
 const scopeOptions: { key: Scope; label: string; icon: string }[] = [
   { key: "node", label: "Single node", icon: "mdi-server" },
@@ -85,6 +97,10 @@ async function execute() {
   }
   if (!command.value.trim()) {
     setNotice("Enter a command.", "warning");
+    return;
+  }
+  if (payloadError.value) {
+    setNotice(payloadError.value, "warning");
     return;
   }
 
@@ -241,6 +257,8 @@ function rowStatus(r: Row): { icon: string; color: string; text: string } {
           auto-grow
           hide-details="auto"
           class="mono-field"
+          :error="!!payloadError"
+          :error-messages="payloadError"
         />
         <v-btn
           class="format-btn"
@@ -315,7 +333,11 @@ function rowStatus(r: Row): { icon: string; color: string; text: string } {
             </v-icon>
           </button>
           <v-expand-transition>
-            <pre v-if="openRows.has(r.nodeId)" class="result-output">{{ r.output || "—" }}</pre>
+            <JsonBlock
+              v-if="openRows.has(r.nodeId)"
+              :content="r.output || '—'"
+              class="result-output"
+            />
           </v-expand-transition>
         </div>
       </div>
