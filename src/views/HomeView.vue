@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ConnectionSettings from "../components/ConnectionSettings.vue";
 import RmbExecutor from "../components/RmbExecutor.vue";
 </script>
 
@@ -17,7 +16,6 @@ import RmbExecutor from "../components/RmbExecutor.vue";
       </p>
     </section>
 
-    <ConnectionSettings />
     <RmbExecutor />
   </div>
 </template>

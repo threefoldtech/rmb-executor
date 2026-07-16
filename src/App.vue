@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
+import ConnectionSettings from "./components/ConnectionSettings.vue";
 import { useRmb } from "./stores/client";
 
 const rmbStore = useRmb();
 const route = useRoute();
+const menuOpen = ref(false);
 
 const status = computed(() => {
   switch (rmbStore.status) {
@@ -15,13 +17,16 @@ const status = computed(() => {
     case "error":
       return { label: "Disconnected", color: "#f87171", pulse: false };
     default:
-      return { label: "Idle", color: "#64748b", pulse: false };
+      return { label: "Not connected", color: "#64748b", pulse: false };
   }
 });
 
-const reconnect = () => {
-  if (rmbStore.status !== "connecting") rmbStore.connect();
-};
+onMounted(() => {
+  // Auto-connect once on load when a mnemonic is already available (e.g. .env).
+  if (rmbStore.settings.mnemonic.trim() && rmbStore.status === "idle") {
+    rmbStore.connect();
+  }
+});
 </script>
 
 <template>
@@ -56,22 +61,40 @@ const reconnect = () => {
 
       <nav class="topnav">
         <RouterLink to="/" :class="{ active: route.name === 'home' }">Execute</RouterLink>
+        <RouterLink
+          to="/node-version"
+          :class="{ active: route.name === 'node-version' }"
+        >
+          Node Version
+        </RouterLink>
         <RouterLink to="/about" :class="{ active: route.name === 'about' }">About</RouterLink>
       </nav>
 
-      <button
-        class="status-chip"
-        type="button"
-        :title="rmbStore.status === 'error' ? 'Click to reconnect' : status.label"
-        @click="reconnect"
+      <v-menu
+        v-model="menuOpen"
+        :close-on-content-click="false"
+        location="bottom end"
+        offset="10"
       >
-        <span
-          class="status-dot"
-          :class="{ pulse: status.pulse }"
-          :style="{ backgroundColor: status.color, color: status.color }"
-        ></span>
-        {{ status.label }}
-      </button>
+        <template #activator="{ props }">
+          <button
+            v-bind="props"
+            class="status-chip"
+            type="button"
+            :title="status.label"
+          >
+            <span
+              class="status-dot"
+              :class="{ pulse: status.pulse }"
+              :style="{ backgroundColor: status.color, color: status.color }"
+            ></span>
+            {{ status.label }}
+            <v-icon size="16" color="#64748b">mdi-chevron-down</v-icon>
+          </button>
+        </template>
+
+        <ConnectionSettings @connected="menuOpen = false" />
+      </v-menu>
     </header>
 
     <v-main>
@@ -80,7 +103,7 @@ const reconnect = () => {
 
     <footer class="footer">
       <span>Reliable Message Bus · ThreeFold Grid</span>
-      <span class="mono">dev net</span>
+      <span class="mono">{{ rmbStore.settings.network }} net</span>
     </footer>
   </v-app>
 </template>
@@ -190,6 +213,7 @@ const reconnect = () => {
   padding: 0.35rem 0.8rem;
   border-radius: 8px;
   transition: color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .topnav a:hover {
@@ -210,7 +234,7 @@ const reconnect = () => {
   font-size: 0.8rem;
   font-weight: 500;
   color: #cbd5e1;
-  padding: 0.35rem 0.85rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.85rem;
   border-radius: 999px;
   border: 1px solid var(--glass-border);
   background: rgba(13, 20, 36, 0.6);
@@ -235,17 +259,22 @@ const reconnect = () => {
   border-top: 1px solid rgba(148, 163, 184, 0.08);
 }
 
-@media (max-width: 560px) {
-  .topnav {
-    display: none;
-  }
-
+@media (max-width: 620px) {
   .brand-name {
     display: none;
   }
 
   .topbar {
-    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .topnav {
+    gap: 0;
+  }
+
+  .topnav a {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.8rem;
   }
 }
 </style>

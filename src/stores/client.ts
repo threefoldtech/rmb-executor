@@ -10,6 +10,7 @@ export interface RmbSettings {
   network: string;
   chainUrl: string;
   relayUrl: string;
+  gridProxyUrl: string;
   mnemonic: string;
 }
 
@@ -26,6 +27,7 @@ export interface IClient {
 const LS_NETWORK = "rmb.network";
 const LS_CHAIN = "rmb.chainUrl";
 const LS_RELAY = "rmb.relayUrl";
+const LS_PROXY = "rmb.gridProxyUrl";
 
 function initialSettings(): RmbSettings {
   const savedNetwork = localStorage.getItem(LS_NETWORK) ?? "dev";
@@ -42,6 +44,11 @@ function initialSettings(): RmbSettings {
       net?.relayUrl ??
       import.meta.env.VITE_RELAY_URL ??
       NETWORKS[0].relayUrl,
+    gridProxyUrl:
+      localStorage.getItem(LS_PROXY) ??
+      net?.gridProxyUrl ??
+      import.meta.env.VITE_GRIDPROXY_URL ??
+      NETWORKS[0].gridProxyUrl,
     // Kept in memory only (prefilled from the env) — never persisted to disk.
     mnemonic: import.meta.env.VITE_MNEMONIC ?? "",
   };
@@ -65,6 +72,7 @@ const useRmb = defineStore("rmb-client", {
       localStorage.setItem(LS_NETWORK, this.settings.network);
       localStorage.setItem(LS_CHAIN, this.settings.chainUrl);
       localStorage.setItem(LS_RELAY, this.settings.relayUrl);
+      localStorage.setItem(LS_PROXY, this.settings.gridProxyUrl);
     },
 
     selectNetwork(key: string) {
@@ -73,6 +81,7 @@ const useRmb = defineStore("rmb-client", {
       if (net) {
         this.settings.chainUrl = net.chainUrl;
         this.settings.relayUrl = net.relayUrl;
+        this.settings.gridProxyUrl = net.gridProxyUrl;
       }
       this.persist();
     },
