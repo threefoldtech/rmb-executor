@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { requestRmb } from "../client/client";
-import { getFarmNodes, getNode } from "../client/gridProxy";
+import { getAllNodes, getFarmNodes, getNode } from "../client/gridProxy";
 import { useRmb } from "../stores/client";
+
+type NoticeType = "error" | "warning" | "info" | "success";
 
 interface Row {
   nodeId: number;
@@ -18,9 +20,15 @@ const targetVersion = ref("3.1.0");
 const nodeId = ref<number | null>(null);
 const farmId = ref<number | null>(null);
 
-const busy = ref<"node" | "farm" | null>(null);
+const busy = ref<"node" | "farm" | "all" | null>(null);
 const rows = ref<Row[]>([]);
 const notice = ref("");
+const noticeType = ref<NoticeType>("error");
+
+function setNotice(msg: string, type: NoticeType = "error") {
+  notice.value = msg;
+  noticeType.value = type;
+}
 
 const connected = computed(() => !!rmbStore.rmbClient);
 
@@ -82,18 +90,33 @@ async function runPool<T>(items: T[], limit: number, fn: (t: T) => Promise<void>
 }
 
 const guard = (): boolean => {
-  notice.value = "";
+  setNotice("", "info");
   if (!connected.value) {
-    notice.value = "Connect first — open the status chip in the top-right.";
+    setNotice("Connect first — open the status chip in the top-right.", "warning");
     return false;
   }
   return true;
 };
 
+// Seed the table, then resolve every row through a small concurrency pool
+// so results stream in as each node responds.
+async function scanNodes(nodes: { nodeId: number; twinId: number }[], limit: number) {
+  rows.value = nodes
+    .slice()
+    .sort((a, b) => a.nodeId - b.nodeId)
+    .map((n) => makeRow(n.nodeId, n.twinId));
+
+  await runPool(rows.value.slice(), limit, async (row) => {
+    const resolved = await resolveRow(row);
+    const idx = rows.value.findIndex((r) => r.nodeId === row.nodeId);
+    if (idx !== -1) rows.value[idx] = resolved;
+  });
+}
+
 async function checkNode() {
   if (!guard()) return;
   if (!nodeId.value) {
-    notice.value = "Enter a node ID.";
+    setNotice("Enter a node ID.", "warning");
     return;
   }
   busy.value = "node";
@@ -102,7 +125,7 @@ async function checkNode() {
     const node = await getNode(rmbStore.settings.gridProxyUrl, Number(nodeId.value));
     rows.value = [await resolveRow(makeRow(node.nodeId, node.twinId))];
   } catch (err) {
-    notice.value = String(err);
+    setNotice(String(err), "error");
   } finally {
     busy.value = null;
   }
@@ -111,7 +134,7 @@ async function checkNode() {
 async function checkFarm() {
   if (!guard()) return;
   if (!farmId.value) {
-    notice.value = "Enter a farm ID.";
+    setNotice("Enter a farm ID.", "warning");
     return;
   }
   busy.value = "farm";
@@ -121,18 +144,30 @@ async function checkFarm() {
       rmbStore.settings.gridProxyUrl,
       Number(farmId.value)
     );
-    // Seed the table so the user sees progress as results stream in.
-    rows.value = nodes
-      .sort((a, b) => a.nodeId - b.nodeId)
-      .map((n) => makeRow(n.nodeId, n.twinId));
-
-    await runPool(rows.value.slice(), 8, async (row) => {
-      const resolved = await resolveRow(row);
-      const idx = rows.value.findIndex((r) => r.nodeId === row.nodeId);
-      if (idx !== -1) rows.value[idx] = resolved;
-    });
+    setNotice(`Checking ${nodes.length} node${nodes.length === 1 ? "" : "s"}…`, "info");
+    await scanNodes(nodes, 8);
+    setNotice("", "info");
   } catch (err) {
-    notice.value = String(err);
+    setNotice(String(err), "error");
+  } finally {
+    busy.value = null;
+  }
+}
+
+async function checkAll() {
+  if (!guard()) return;
+  busy.value = "all";
+  rows.value = [];
+  try {
+    const nodes = await getAllNodes(rmbStore.settings.gridProxyUrl, true);
+    setNotice(
+      `Scanning ${nodes.length} online node${nodes.length === 1 ? "" : "s"} on ${rmbStore.settings.network} net…`,
+      "info"
+    );
+    await scanNodes(nodes, 12);
+    setNotice("", "info");
+  } catch (err) {
+    setNotice(String(err), "error");
   } finally {
     busy.value = null;
   }
@@ -207,11 +242,27 @@ function rowStatus(r: Row): { icon: string; color: string; text: string } {
             Check nodes' version in farm
           </v-btn>
         </div>
+
+        <div class="check">
+          <div class="check-note">
+            <v-icon size="16" color="secondary">mdi-earth</v-icon>
+            Every online node on {{ rmbStore.settings.network }} net
+          </div>
+          <v-btn
+            class="btn-gradient check-btn"
+            rounded="lg"
+            :loading="busy === 'all'"
+            :disabled="busy !== null"
+            @click="checkAll"
+          >
+            Scan all nodes
+          </v-btn>
+        </div>
       </div>
 
       <v-alert
         v-if="notice"
-        type="info"
+        :type="noticeType"
         variant="tonal"
         density="compact"
         class="notice"
@@ -306,18 +357,30 @@ function rowStatus(r: Row): { icon: string; color: string; text: string } {
 
 .checks {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 .check {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 0.9rem;
   padding: 1rem;
   border: 1px solid var(--glass-border);
   border-radius: 14px;
   background: rgba(24, 34, 56, 0.4);
+}
+
+.check-note {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 56px;
+  padding: 0 0.4rem;
+  font-size: 0.83rem;
+  color: #94a3b8;
+  line-height: 1.4;
 }
 
 .check-btn {
@@ -400,9 +463,13 @@ function rowStatus(r: Row): { icon: string; color: string; text: string } {
   font-weight: 500;
 }
 
-@media (max-width: 620px) {
+@media (max-width: 720px) {
   .checks {
     grid-template-columns: 1fr;
+  }
+
+  .check-note {
+    min-height: 0;
   }
 
   .results-row {

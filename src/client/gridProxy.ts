@@ -30,23 +30,26 @@ export async function getNode(
   return { nodeId: data.nodeId, twinId: data.twinId, farmId: data.farmId };
 }
 
-/** List every node in a farm via Grid Proxy (handles pagination). */
-export async function getFarmNodes(
+/** Page through Grid Proxy /nodes with an arbitrary filter. */
+async function listNodes(
   gridProxyUrl: string,
-  farmId: number
+  params: Record<string, string>
 ): Promise<GridNode[]> {
   const base = trimBase(gridProxyUrl);
-  const size = 50;
+  const size = 100;
   let page = 1;
   const nodes: GridNode[] = [];
 
-  // Cap pages defensively so a huge farm can't loop forever.
-  for (let i = 0; i < 40; i++) {
-    const res = await fetch(
-      `${base}/nodes?farm_ids=${farmId}&size=${size}&page=${page}`
-    );
+  // Page cap (200 * 100 = 20k nodes) as a defensive backstop.
+  for (let i = 0; i < 200; i++) {
+    const qs = new URLSearchParams({
+      ...params,
+      size: String(size),
+      page: String(page),
+    });
+    const res = await fetch(`${base}/nodes?${qs.toString()}`);
     if (!res.ok) {
-      throw new Error(`Grid Proxy returned ${res.status} for farm ${farmId}`);
+      throw new Error(`Grid Proxy returned ${res.status}`);
     }
     const batch = (await res.json()) as RawNode[];
     if (!Array.isArray(batch) || batch.length === 0) break;
@@ -57,8 +60,35 @@ export async function getFarmNodes(
     page += 1;
   }
 
+  return nodes;
+}
+
+/** List every node in a farm via Grid Proxy. */
+export async function getFarmNodes(
+  gridProxyUrl: string,
+  farmId: number
+): Promise<GridNode[]> {
+  const nodes = await listNodes(gridProxyUrl, { farm_ids: String(farmId) });
   if (nodes.length === 0) {
     throw new Error(`No nodes found in farm ${farmId} on this network`);
+  }
+  return nodes;
+}
+
+/**
+ * List every node on the network. Defaults to online ("up") nodes only —
+ * scanning offline nodes just produces a wall of unreachable timeouts.
+ */
+export async function getAllNodes(
+  gridProxyUrl: string,
+  onlyUp = true
+): Promise<GridNode[]> {
+  const nodes = await listNodes(
+    gridProxyUrl,
+    onlyUp ? { status: "up" } : {}
+  );
+  if (nodes.length === 0) {
+    throw new Error("No nodes found on this network");
   }
   return nodes;
 }
