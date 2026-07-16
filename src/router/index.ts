@@ -10,6 +10,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/nodes',
+      name: 'nodes',
+      component: () => import('../views/NodesExecuteView.vue'),
+    },
+    {
       path: '/node-version',
       name: 'node-version',
       component: () => import('../views/NodeVersionView.vue'),

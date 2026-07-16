@@ -61,6 +61,7 @@ onMounted(() => {
 
       <nav class="topnav">
         <RouterLink to="/" :class="{ active: route.name === 'home' }">Execute</RouterLink>
+        <RouterLink to="/nodes" :class="{ active: route.name === 'nodes' }">Nodes</RouterLink>
         <RouterLink
           to="/node-version"
           :class="{ active: route.name === 'node-version' }"

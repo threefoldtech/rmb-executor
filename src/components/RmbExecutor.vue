@@ -80,11 +80,14 @@ const pushHistory = (ok: boolean) => {
 const handleSubmit = async () => {
   if (!canSubmit.value) return;
 
+  // Hide any previous response so it isn't mistaken for this call's output.
+  hasResponse.value = false;
+
   if (!rmbStore.rmbClient) {
     hasResponse.value = true;
     responseOk.value = false;
     response.value =
-      "RMB client is not connected. Open the Connection panel above, set your mnemonic and network, then connect.";
+      "RMB client is not connected. Open the connection panel from the status chip (top-right), set your mnemonic and network, then connect.";
     return;
   }
 
