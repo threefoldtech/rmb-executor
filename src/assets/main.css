@@ -1,35 +1,105 @@
-@import './base.css';
+/* ---- RMB Executor global styles ---- */
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+:root {
+  --font-sans: "Inter", "Roboto", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --accent-teal: #2dd4bf;
+  --accent-cyan: #38bdf8;
+  --glass-border: rgba(148, 163, 184, 0.14);
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+html {
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+.v-application {
+  font-family: var(--font-sans) !important;
+}
+
+code,
+pre,
+.mono {
+  font-family: var(--font-mono) !important;
+}
+
+/* Gradient headline text */
+.gradient-text {
+  background: linear-gradient(92deg, #f8fafc 0%, var(--accent-teal) 55%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Frosted-glass panel */
+.glass-card {
+  background: rgba(13, 20, 36, 0.72) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 20px !important;
+}
+
+/* Primary CTA with gradient + glow */
+.btn-gradient {
+  background: linear-gradient(92deg, #0d9488 0%, #14b8a6 45%, #0ea5e9 100%) !important;
+  color: #ecfeff !important;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 600;
+  box-shadow: 0 8px 28px -8px rgba(20, 184, 166, 0.55);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.btn-gradient:hover {
+  box-shadow: 0 12px 36px -8px rgba(20, 184, 166, 0.75);
+  transform: translateY(-1px);
+}
+
+/* Pulsing status dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.status-dot.pulse {
+  animation: dot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 4px transparent;
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* Entrance animation for main panels */
+.rise-in {
+  animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .status-dot.pulse {
+    animation: none;
   }
 }

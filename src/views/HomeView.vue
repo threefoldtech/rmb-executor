@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HelloWorld from "../components/HelloWorld.vue";
+import RmbExecutor from "../components/RmbExecutor.vue";
 </script>
 
 <template>
-  <HelloWorld />
+  <RmbExecutor />
 </template>
