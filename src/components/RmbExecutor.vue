@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { requestRmb } from "../client/client";
-import { COMMAND_EXAMPLES, type CommandExample } from "../client/networks";
 import { useRmb } from "../stores/client";
 import JsonBlock from "./JsonBlock.vue";
 
@@ -47,8 +46,6 @@ const canSubmit = computed(
     !loading.value
 );
 
-const activeExample = computed(() => formData.value.command.trim());
-
 const prettify = (value: unknown): string => {
   if (typeof value === "string") {
     try {
@@ -58,11 +55,6 @@ const prettify = (value: unknown): string => {
     }
   }
   return JSON.stringify(value, null, 2);
-};
-
-const applyExample = (ex: CommandExample) => {
-  formData.value.command = ex.command;
-  formData.value.payload = ex.payload;
 };
 
 const formatPayload = () => {
@@ -152,23 +144,6 @@ const applyHistory = (entry: HistoryEntry) => {
 <template>
   <v-card class="glass-card composer rise-in" elevation="0" style="animation-delay: 0.06s">
     <form @submit.prevent="handleSubmit">
-      <!-- Example presets -->
-      <div class="examples">
-        <span class="examples-label">Examples</span>
-        <button
-          v-for="ex in COMMAND_EXAMPLES"
-          :key="ex.command"
-          type="button"
-          class="example-chip"
-          :class="{ active: activeExample === ex.command }"
-          :title="ex.command"
-          @click="applyExample(ex)"
-        >
-          <v-icon size="14">{{ ex.icon }}</v-icon>
-          {{ ex.label }}
-        </button>
-      </div>
-
       <div class="composer-grid">
         <v-text-field
           v-model="formData.twinId"
@@ -181,7 +156,7 @@ const applyHistory = (entry: HistoryEntry) => {
         <v-text-field
           v-model="formData.command"
           label="Command"
-          placeholder="zos.system.version"
+          placeholder="the RMB command to send"
           hide-details="auto"
           prepend-inner-icon="mdi-console-line"
           class="mono-field"
@@ -286,49 +261,12 @@ const applyHistory = (entry: HistoryEntry) => {
 </template>
 
 <style scoped>
-/* ---- examples ---- */
-.examples {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.1rem;
-}
-
-.examples-label,
 .history-label {
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748b;
-}
-
-.example-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #cbd5e1;
-  padding: 0.32rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--glass-border);
-  background: rgba(24, 34, 56, 0.55);
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-}
-
-.example-chip:hover {
-  border-color: rgba(45, 212, 191, 0.5);
-  color: #e2e8f0;
-}
-
-.example-chip.active {
-  border-color: rgba(45, 212, 191, 0.65);
-  background: rgba(45, 212, 191, 0.12);
-  color: #2dd4bf;
 }
 
 /* ---- composer ---- */
