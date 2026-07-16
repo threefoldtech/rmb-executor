@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Client } from "@threefold/rmb_direct_client";
 import { onMounted, ref } from "vue";
-import { connectClient, requestRmb } from "../client/client";
+import { requestRmb } from "../client/client";
 import { useRmb } from "../stores/client";
+import DialogComponent from "./dialoge.vue";
 
-let client: Client | undefined;
 const rmbStore = useRmb();
 const response = ref("");
 const dialogVisible = ref(false);
@@ -12,8 +11,6 @@ const dialogVisible = ref(false);
 onMounted(async () => {
   try {
     await rmbStore.set();
-    console.log("clientStore", rmbStore.client);
-    client = await connectClient();
   } catch (err) {
     console.error(`RMB Client connection failed due to ${err}`);
   }
@@ -22,32 +19,31 @@ onMounted(async () => {
 const formData = ref({
   command: "",
   payload: "",
-  nodeId: 17,
+  twinId: 17,
 });
 
 const handleSubmit = async () => {
-  console.log("Form Submitted:", formData.value);
+  if (!rmbStore.rmbClient) {
+    response.value = "RMB client is not connected.";
+    dialogVisible.value = true;
+    return;
+  }
 
-  if (!client) return;
-
-  if (rmbStore.client) {
-    response.value = await requestRmb(
-      rmbStore.client,
+  try {
+    const result = await requestRmb(
+      rmbStore.rmbClient,
       formData.value.command,
-      formData.value.payload[formData.value.nodeId]
+      formData.value.payload,
+      Number(formData.value.twinId)
     );
+    response.value =
+      typeof result === "string" ? result : JSON.stringify(result);
+  } catch (err) {
+    response.value = `Request failed: ${err}`;
   }
 
   // Open the dialog after submission
   dialogVisible.value = true;
-};
-</script>
-<script lang="ts">
-import DialogComponent from "./dialoge.vue"; // Ensure correct import
-
-export default {
-  name: "HelloWorld",
-  components: { DialogComponent },
 };
 </script>
 
@@ -72,9 +68,10 @@ export default {
           >
             <v-text-field
               class="pa-4"
-              v-model="formData.nodeId"
+              v-model="formData.twinId"
               hide-details="auto"
-              label="Node Id"
+              label="Twin Id"
+              type="number"
               clearable
             ></v-text-field>
           </v-card>

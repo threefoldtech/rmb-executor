@@ -1,11 +1,15 @@
 import { Client } from "@threefold/rmb_direct_client";
 
+const CHAIN_URL = import.meta.env.VITE_CHAIN_URL || "wss://tfchain.dev.grid.tf/ws";
+const RELAY_URL = import.meta.env.VITE_RELAY_URL || "wss://relay.dev.grid.tf/";
+const MNEMONIC = import.meta.env.VITE_MNEMONIC || "";
+
 export async function connectClient(): Promise<Client | undefined> {
   // create client
   const client = new Client(
-    "wss://tfchain.dev.grid.tf/ws",
-    `wss://relay.dev.grid.tf/`,
-    "",
+    CHAIN_URL,
+    RELAY_URL,
+    MNEMONIC,
     "test_client",
     "sr25519",
     10
@@ -23,13 +27,13 @@ export async function connectClient(): Promise<Client | undefined> {
 export async function requestRmb(
   rmbClient: Client,
   command: string,
-  payload: any,
-  destTwinIds: number[] = [17]
+  payload: string,
+  destTwinId = 17
 ): Promise<any> {
   const requestID = await rmbClient.send(
     command,
     payload,
-    destTwinIds[0],
+    destTwinId,
     20 / 60,
     5
   );

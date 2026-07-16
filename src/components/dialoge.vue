@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, type PropType } from "vue";
+import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   name: "DialogComponent",
@@ -21,8 +21,8 @@ export default defineComponent({
       default: false,
     },
     response: {
-      type: Object as PropType<any>,
-      default: false,
+      type: String,
+      default: "",
     },
   },
   setup(props, { emit }) {
