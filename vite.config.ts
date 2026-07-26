@@ -7,10 +7,10 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vuetify from "vite-plugin-vuetify";
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => ({
-  // Served from a GitHub Pages project subpath in production
-  // (https://threefoldtech.github.io/rmb-executor/); root during dev.
-  base: command === "build" ? "/rmb-executor/" : "/",
+export default defineConfig(() => ({
+  // Served from the custom domain root (https://rmb.grid.tf/) in production
+  // and at root during dev, so the base is "/" in both cases.
+  base: "/",
   plugins: [
     vue(),
     nodePolyfills(),
